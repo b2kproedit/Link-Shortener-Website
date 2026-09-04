@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Shortener</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: linear-gradient(135deg, #0f172a, #1e1b4b); color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    
+    .card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); width: 100%; max-width: 480px; text-align: center; }
+    h2 { font-size: 1.8rem; margin-bottom: 8px; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    p.subtitle { font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px; }
+
+    .input-group { display: flex; gap: 8px; margin-bottom: 20px; }
+    input[type="url"] { flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 0.95rem; outline: none; transition: 0.3s; }
+    input[type="url"]:focus { border-color: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.3); }
+    
+    button.shorten-btn { background: linear-gradient(90deg, #38bdf8, #818cf8); border: none; color: #0f172a; font-weight: bold; padding: 12px 18px; border-radius: 10px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+    button.shorten-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .link-list { list-style: none; display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; text-align: left; }
+    .link-item { background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .link-info { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .original-url { font-size: 0.75rem; color: #94a3b8; display: block; overflow: hidden; text-overflow: ellipsis; }
+    .short-url { font-size: 0.9rem; color: #38bdf8; text-decoration: none; font-weight: 600; }
+    
+    .copy-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+    .copy-btn:hover { background: #38bdf8; color: #0f172a; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Link Shortener</h2>
+    <p class="subtitle">Paste your long URL to make it short and easy to share.</p>
+
+    <div class="input-group">
+      <input type="url" id="urlInput" placeholder="https://example.com/very-long-url..." required>
+      <button class="shorten-btn" id="btnShorten" onclick="shortenLink()">Shorten</button>
+    </div>
+
+    <ul class="link-list" id="linkList"></ul>
+  </div>
+
+  <script>
+    function shortenLink() {
+      const input = document.getElementById('urlInput');
+      const list = document.getElementById('linkList');
+      const rawUrl = input.value.trim();
+
+      if (!rawUrl) return;
+
+      // Add https:// protocol if missing
+      let formattedUrl = rawUrl;
+      if (!/^https?:\/\//i.test(formattedUrl)) {
+        formattedUrl = 'https://' + formattedUrl;
+      }
+
+      // Generate a mock short hash code
+      const hash = Math.random().toString(36).substring(2, 8);
+      const shortUrl = `https://shrt.link/${hash}`;
+
+      // Create link item element
+      const li = document.createElement('li');
+      li.className = 'link-item';
+      li.innerHTML = `
+        <div class="link-info">
+          <a href="${shortUrl}" target="_blank" class="short-url">${shortUrl}</a>
+          <span class="original-url">${formattedUrl}</span>
+        </div>
+        <button class="copy-btn" onclick="copyToClipboard('${shortUrl}', this)">Copy</button>
+      `;
+
+      list.prepend(li);
+      input.value = '';
+    }
+
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.innerText = 'Copied!';
+        btn.style.background = '#34d399';
+        btn.style.color = '#0f172a';
+        setTimeout(() => {
+          btn.innerText = 'Copy';
+          btn.style.background = 'rgba(255, 255, 255, 0.1)';
+          btn.style.color = '#fff';
+        }, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
